@@ -617,6 +617,14 @@ void ApplicationManager1Service::ReloadApplications()
 
 void ApplicationManager1Service::doReloadApplications()
 {
+    if (m_isReloading) {
+        qInfo() << "reload already in progress, deferring.";
+        m_pendingReload = true;
+        return;
+    }
+
+    m_isReloading = true;
+    m_pendingReload = false;
     qInfo() << "reload applications.";
 
     auto desktopFileDirs = getDesktopFileDirs();
@@ -658,6 +666,14 @@ void ApplicationManager1Service::doReloadApplications()
 
     reloadMimeInfos();
     updateAutostartStatus();
+
+    m_isReloading = false;
+
+    if (m_pendingReload) {
+        m_pendingReload = false;
+        qInfo() << "pending reload detected, scheduling deferred reload.";
+        m_reloadTimer.start();
+    }
 }
 
 ObjectMap ApplicationManager1Service::GetManagedObjects() const
