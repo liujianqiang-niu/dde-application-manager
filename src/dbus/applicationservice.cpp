@@ -300,6 +300,7 @@ QDBusObjectPath ApplicationService::Launch(const QString &action, const QStringL
     if (isAutostartLaunch) {
         if (!parent()->isNewSession()) {
             safe_sendErrorReply(QDBusError::Failed, "autostart launch has been ignored if not new session.");
+            return QDBusObjectPath("/");
         }
     }
 
@@ -880,6 +881,8 @@ void ApplicationService::setAutoStart(bool autostart) noexcept
 
     if (writeBytes != hideAutostart.size() || !autostartFile.flush()) {
         qWarning() << "incomplete write:" << autostartFile.error();
+        safe_sendErrorReply(QDBusError::Failed, "set failed: filesystem error.");
+        return;
     }
 
     emit autostartChanged();

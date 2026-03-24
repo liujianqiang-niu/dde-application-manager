@@ -154,7 +154,7 @@ DExpected<void> Launcher::updateLaunchedTimes() noexcept
 
     auto it = launchedTimes.find(appKey);
     if (it != launchedTimes.end()) {
-        it.value() = it->value<qlonglong>() + 1;
+        *it = it->value<qlonglong>() + 1;
     } else {
         launchedTimes.insert(appKey, static_cast<qlonglong>(1));
     }
